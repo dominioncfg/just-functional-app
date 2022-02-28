@@ -1,0 +1,6 @@
+version: "3.8"
+services:
+  just-functional-web:
+    image: josecdom94/just-functional-api:2.0.1
+    ports:
+      - "5698:80"

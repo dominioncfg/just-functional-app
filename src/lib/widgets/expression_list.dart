@@ -11,20 +11,29 @@ class ExpressionList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<Expressions>(builder: (_, expressionsData, __) {
-      final expressions = expressionsData.expressions;
-      return expressions.isNotEmpty
-          ? ListView.builder(
-              itemBuilder: (ctx, ind) {
-                var expression = expressions[ind];
-                return ExpressionListItem(
-                  expression: expression,
-                );
-              },
-              itemCount: expressions.length,
-            )
-          : const _EmptyExpressionList();
-    });
+    return FutureBuilder(
+      future: Provider.of<Expressions>(context, listen: false)
+          .fetchAndSetExistingExpression(),
+      builder: (ctx, snapshot) =>
+          snapshot.connectionState == ConnectionState.waiting
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Consumer<Expressions>(builder: (_, expressionsData, __) {
+                  final expressions = expressionsData.expressions;
+                  return expressions.isNotEmpty
+                      ? ListView.builder(
+                          itemBuilder: (ctx, ind) {
+                            var expression = expressions[ind];
+                            return ExpressionListItem(
+                              expression: expression,
+                            );
+                          },
+                          itemCount: expressions.length,
+                        )
+                      : const _EmptyExpressionList();
+                }),
+    );
   }
 }
 

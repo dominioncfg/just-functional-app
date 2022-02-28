@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 
 import 'pages.dart';
 import '../providers/expressions.dart';
@@ -12,7 +11,7 @@ class ExpressionDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final expressionId = ModalRoute.of(context)!.settings.arguments as Uuid;
+    final expressionId = ModalRoute.of(context)!.settings.arguments as String;
     var expressionData = Provider.of<Expressions>(context);
     var expression = expressionData.getById(expressionId);
 

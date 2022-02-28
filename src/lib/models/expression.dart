@@ -1,7 +1,5 @@
-import 'package:uuid/uuid.dart';
-
 class Expression {
-  Uuid id;
+  final String id;
   final String name;
   final String formula;
   final List<String> variables;

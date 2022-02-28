@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 
 import '../providers/providers.dart';
 
@@ -16,7 +15,7 @@ class _ExpressionEditState extends State<ExpressionEdit> {
   final _formulaFocusNode = FocusNode();
   _NewExpressionData _formData = _NewExpressionData();
 
-  void _createExpression(Expressions expressionsData) {
+  Future<void> _createExpression(Expressions expressionsData) async {
     final isValid = _form.currentState!.validate();
     if (!isValid) {
       return;
@@ -30,9 +29,9 @@ class _ExpressionEditState extends State<ExpressionEdit> {
     final variables = _formData.variables;
     bool isAdd = editingExpessionId == null;
     if (isAdd) {
-      expressionsData.add(name, formula, variables);
+      await expressionsData.add(name, formula, variables);
     } else {
-      expressionsData.updateExpressiontById(
+      await expressionsData.updateExpressiontById(
           editingExpessionId, name, formula, variables);
     }
 
@@ -189,7 +188,7 @@ class _ExpressionEditState extends State<ExpressionEdit> {
   void didChangeDependencies() {
     if (_isInit) {
       final arg = ModalRoute.of(context)!.settings.arguments;
-      if (arg != null && arg is Uuid) {
+      if (arg != null && arg is String) {
         final editedExpression =
             Provider.of<Expressions>(context, listen: false).getById(arg);
 
@@ -320,7 +319,7 @@ class __AddVariableState extends State<_AddVariable> {
 }
 
 class _NewExpressionData {
-  final Uuid? editingExpessionId;
+  final String? editingExpessionId;
   String? _name;
   String? _formula;
   final List<String> _variables = [];

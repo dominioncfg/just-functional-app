@@ -10,9 +10,9 @@ class ExpressionListItem extends StatelessWidget {
   ExpressionListItem({required this.expression})
       : super(key: Key(expression.id.toString()));
 
-  void _removeItem(BuildContext context) {
+  Future<void> _removeItem(BuildContext context) async {
     var expressionsData = Provider.of<Expressions>(context, listen: false);
-    expressionsData.deleteById(expression.id);
+    await expressionsData.deleteById(expression.id);
   }
 
   @override
@@ -62,8 +62,8 @@ class ExpressionListItem extends StatelessWidget {
           ),
         );
       },
-      onDismissed: (direction) {
-        _removeItem(context);
+      onDismissed: (direction) async {
+        await _removeItem(context);
       },
       child: GestureDetector(
         onTap: () => Navigator.of(context)
