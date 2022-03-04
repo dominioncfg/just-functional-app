@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/providers.dart';
+import '../services/services.dart';
 
 class ExpressionEdit extends StatefulWidget {
   const ExpressionEdit({Key? key}) : super(key: key);
@@ -13,6 +14,7 @@ class ExpressionEdit extends StatefulWidget {
 class _ExpressionEditState extends State<ExpressionEdit> {
   final _form = GlobalKey<FormState>();
   final _formulaFocusNode = FocusNode();
+  final _justFunctionalService = JustFunctionalService();
   _NewExpressionData _formData = _NewExpressionData();
 
   Future<void> _createExpression(Expressions expressionsData) async {
@@ -28,6 +30,21 @@ class _ExpressionEditState extends State<ExpressionEdit> {
     final formula = _formData.formula ?? "";
     final variables = _formData.variables;
     bool isAdd = editingExpessionId == null;
+    final isAValidExpressionResult =
+        await _justFunctionalService.isValid(formula, variables);
+
+    if (!isAValidExpressionResult.success) {
+      var errorStr = isAValidExpressionResult.errors.join(". ");
+      var snackBar = SnackBar(
+          content: Text(errorStr),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          backgroundColor: Theme.of(context).primaryColorDark);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return;
+    }
     if (isAdd) {
       await expressionsData.add(name, formula, variables);
     } else {
@@ -87,7 +104,7 @@ class _ExpressionEditState extends State<ExpressionEdit> {
                           keyboardType: TextInputType.text,
                           textInputAction: TextInputAction.next,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if (value == null || value.trim().isEmpty) {
                               return 'Please provide an expression name.';
                             }
                             return null;
@@ -108,7 +125,7 @@ class _ExpressionEditState extends State<ExpressionEdit> {
                           textInputAction: TextInputAction.done,
                           focusNode: _formulaFocusNode,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if (value == null || value.trim().isEmpty) {
                               return 'Please provide a formula.';
                             }
                           },
@@ -163,7 +180,8 @@ class _ExpressionEditState extends State<ExpressionEdit> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: () => {_createExpression(expressionsData)},
+                      onPressed: () async =>
+                          {await _createExpression(expressionsData)},
                       child: Text(
                         _formData.editingExpessionId == null
                             ? "Create"
@@ -283,7 +301,7 @@ class __AddVariableState extends State<_AddVariable> {
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.done,
                   validator: (value) {
-                    if (value == null || value.isEmpty) {
+                    if (value == null || value.trim().isEmpty) {
                       return 'Please provide a valid variable name.';
                     }
 

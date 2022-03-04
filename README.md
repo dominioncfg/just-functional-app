@@ -19,5 +19,5 @@ This app uses a version of [Just Functional Web](https://github.com/dominioncfg/
 2. Start the backend using docker
 
 ```bash
-docker-compose -f /backend/local/docker-compose.yml -p just-functional-app-local up --build --detach
+docker-compose -f ./backend/local/docker-compose.yml -p just-functional-app-local up --build --detach
 ```

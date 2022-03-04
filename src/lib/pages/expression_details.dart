@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'pages.dart';
 import '../providers/expressions.dart';
 import '../models/expression.dart';
+import '../services/services.dart';
 
 class ExpressionDetailsPage extends StatelessWidget {
   static const route = "/details";
@@ -51,6 +52,7 @@ class __ExpressionEvaluatorState extends State<_ExpressionEvaluator> {
   final _form = GlobalKey<FormState>();
   final _variablesMap = <String, double>{};
   final _results = <_EvaluationResultItem>[];
+  final _justFunctionalService = JustFunctionalService();
 
   TextFormField _getVariableTextField(String variableName, bool isLastOne) {
     return TextFormField(
@@ -103,7 +105,7 @@ class __ExpressionEvaluatorState extends State<_ExpressionEvaluator> {
         ));
   }
 
-  void _evaluateExpression() {
+  Future<void> _evaluateExpression() async {
     final isValid = _form.currentState!.validate();
     if (!isValid) {
       return;
@@ -112,11 +114,27 @@ class __ExpressionEvaluatorState extends State<_ExpressionEvaluator> {
     _form.currentState!.save();
     var variables = _variablesMap.values.toList();
 
-    setState(() {
-      _results.add(_EvaluationResultItem(widget.expression, variables, 4));
-      _form.currentState!.reset();
-      FocusManager.instance.primaryFocus?.unfocus();
-    });
+    try {
+      var evaluationResult = await _justFunctionalService.evaluate(
+          widget.expression, _variablesMap);
+
+      setState(() {
+        _results.add(
+          _EvaluationResultItem(widget.expression, variables, evaluationResult),
+        );
+        _form.currentState!.reset();
+        FocusManager.instance.primaryFocus?.unfocus();
+      });
+    } on Exception catch (error) {
+      var snackBar = SnackBar(
+          content: Text(error.toString()),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          backgroundColor: Theme.of(context).primaryColorDark);
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
   @override
@@ -164,7 +182,7 @@ class __ExpressionEvaluatorState extends State<_ExpressionEvaluator> {
 class _EvaluationResultItem {
   final Expression expression;
   final List<double> variablesValues;
-  final double result;
+  final num result;
 
   const _EvaluationResultItem(
       this.expression, this.variablesValues, this.result);
